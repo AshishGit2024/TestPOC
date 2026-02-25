@@ -1,0 +1,103 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to launch an EC2 instance with Java 17 and Jenkins, create Python Lambda functions using a Lambda layer, create an S3 bucket for hosting, set up Cognito Identity Pool with guest access and Lex full access, and provide outputs.
+
+Resources:
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for EC2 instance
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0 
+
+  JenkinsInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.small
+      ImageId: ami-01816d07b1128cd2d
+      SecurityGroupIds: [!Ref InstanceSecurityGroup]
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo dnf update -y
+          sudo dnf install java-17-amazon-corretto -y
+          sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+          sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+          sudo dnf install jenkins -y
+          sudo systemctl enable jenkins
+          sudo systemctl start jenkins
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  JenkinsLambdaLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: jenkins-layer
+      Description: Layer with dependencies for Jenkins Lambda functions
+      CompatibleRuntimes: 
+        - python3.12
+      Content:
+        S3Bucket: jenkins-2025
+        S3Key: jenkins-layer.zip
+
+  JenkinsLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: jenkins-lambda
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.12  
+      Code:
+        S3Bucket: jenkins-2025
+        S3Key: jenkins-lambda.zip
+      Layers: 
+        - !Ref JenkinsLambdaLayer
+
+Outputs:
+  JenkinsInstanceId:
+    Description: The Instance ID of the Jenkins EC2 instance
+    Value: !Ref JenkinsInstance
+
+  JenkinsInstancePublicIpwithport:
+    Description: The public IP address of the Jenkins EC2 instance
+    Value: !Sub "${JenkinsInstance.PublicIp}:8080"
+  
+  JenkinsAdminPasswordInstructions:
+    Description: Instructions on how to retrieve the Jenkins initial admin password
+    Value: "SSH into the Jenkins instance and run 'sudo cat /var/lib/jenkins/secrets/initialAdminPassword' to retrieve the initial admin password."
+  
+
+Parameters:
+  VPCId:
+    Description: VPC ID where the EC2 instance will be launched
+    Type: AWS::EC2::VPC::Id

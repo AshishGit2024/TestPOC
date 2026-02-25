@@ -1,0 +1,58 @@
+. GitHub Repository Interactions:
+“Show me the repository {repository_name}”
+“Get the details of {repository_name}”
+“Tell me about the repository {repository_name}”
+“Fetch information for the {repository_name} repository”
+“What’s the status of {repository_name}?”
+“Give me the latest commit in {repository_name}”
+2. GitHub Commits:
+“What are the latest commits in {repository_name}?”
+“Show me the commit history for {repository_name}”
+“List the recent commits in {repository_name}”
+“Show the last commit in {repository_name}”
+“What changes were made in the latest commit of {repository_name}?”
+3. GitHub Pull Requests:
+“What are the open pull requests in {repository_name}?”
+“Show me all pull requests for {repository_name}”
+“Get the details of the latest pull request in {repository_name}”
+“Is there an open pull request in {repository_name}?”
+“Tell me the status of pull request {pr_id} in {repository_name}”
+4. GitHub Issues:
+“What are the open issues in {repository_name}?”
+“Show me all issues for {repository_name}”
+“Get the latest issues in {repository_name}”
+“Tell me the status of issue {issue_number} in {repository_name}”
+“Are there any unresolved issues in {repository_name}?”
+5. GitHub Branches:
+“What branches exist in {repository_name}?”
+“Show me the branches in {repository_name}”
+“Get details for the {branch_name} branch in {repository_name}”
+“Which branches are there in {repository_name}?”
+“What’s the latest commit on the {branch_name} branch?”
+6. GitHub Releases:
+“What are the latest releases in {repository_name}?”
+“Show me all the releases for {repository_name}”
+“Get the release notes for the latest release in {repository_name}”
+“Tell me about the {release_version} release in {repository_name}”
+7. Repository Permissions and Collaborators:
+“Who are the collaborators for {repository_name}?”
+“Show me the team members in {repository_name}”
+“Can you list the contributors for {repository_name}?”
+“Who has access to {repository_name}?”
+8. GitHub Forks:
+“How many forks does {repository_name} have?”
+“Show me the forks of {repository_name}”
+“Tell me about the forks of {repository_name}”
+9. Repository Actions (Like Cloning or Downloading):
+“Can I clone the {repository_name} repository?”
+“Get the clone URL for {repository_name}”
+“Download the latest release from {repository_name}”
+“Can you provide the download link for {repository_name}?”
+10. Repository Webhooks (if applicable):
+“What webhooks are configured for {repository_name}?”
+“Show me the webhook settings for {repository_name}”
+“List the active webhooks for {repository_name}”
+11. Search and Queries within GitHub Repository:
+“Search for {keyword} in {repository_name}”
+“Find all issues containing {keyword} in {repository_name}”
+“Search for pull requests related to {keyword} in {repository_name}”

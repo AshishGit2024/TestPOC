@@ -1,0 +1,405 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DevOps ChatBot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .chat-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 30px auto;
+      border-radius: 10px;
+      overflow: hidden;
+      background-color: #ffffff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .chat-header {
+      background-color: #0078D4;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+    .chat-body {
+      height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    .chat-footer {
+      background-color: #0078D4;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .message-container {
+      margin-bottom: 10px;
+    }
+    .message {
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 80%;
+      font-size: 0.9em;
+      word-wrap: break-word;
+    }
+    .user-name {
+      float: right;
+      font-weight: bold;
+      font-size: 0.6em;
+      color: #4CAF50;
+    }
+    .bot-name {
+      float: left;
+      font-weight: bold;
+      font-size: 0.6em;
+      color: #0078D4;
+    }
+    .user-message {
+      background-color: #DCF8C6;
+      float: right;
+      clear: both;
+    }
+    .bot-message {
+      background-color: #F0F0F0;
+      float: left;
+      clear: both;
+    }
+    .timestamp {
+      font-size: 0.6em;
+      color: #666;
+      clear: both;
+      display: block;
+      margin-top: 5px;
+    }
+    #username-input, #user-name-input {
+      width: 80%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+      outline: none;
+    }
+    .shake {
+      animation: shake 0.3s;
+      border-color: red;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    #name-entry {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: -300px;
+    }
+    #name-button {
+      padding: 10px 20px;
+      background-color: #025204;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      margin-top: 10px;
+      cursor: pointer;
+      font-size: 0.9em;
+      width: 80%;
+    }
+    #name-button:hover {
+      background-color: #45a049;
+    }
+    #login-error {
+      display: none;
+      background-color: #f44336;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      text-align: center;
+      width: 80%;
+    }
+    #loading-spinner {
+      display: none;
+      margin-top: 15px;
+    }
+    #loading-spinner img {
+      width: 40px;
+    }
+    .btn-primary {
+      padding: 8px 15px;
+      margin: 5px 0;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.8em;
+      width: 100%;
+    }
+    .btn-primary:hover {
+      background-color: #45a049;
+    }
+    #imageResponseCard {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <h2>DevOps ChatBot</h2>
+    </div>
+
+    <div class="chat-body" id="chat-body"></div>
+
+    <div id="name-entry">
+      <input type="text" id="username-input" placeholder="Enter username..." />
+      <input type="password" id="user-name-input" placeholder="Enter password..." />
+      <button id="name-button" onclick="setName()">Login</button>
+      <div id="login-error"></div>
+     <div id="loading-spinner"><img src="https://i.imgur.com/llF5iyg.gif" alt="Loading..."></div>
+    </div>
+
+    <div class="chat-footer" id="chat-interface" style="display: none;">
+      <input type="text" id="message-input" placeholder="Type your message..." />
+      <button id="send-button" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <!-- AWS SDKs -->
+  <!-- AWS<script src="https://sdk.amazonaws.com/js/aws-sdk-2.929.0.min.js"></script>-->
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1002.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@4.5.0/dist/amazon-cognito-identity.min.js"></script>
+
+  <script>
+    AWS.config.region = 'ap-southeast-1';
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+      IdentityPoolId: 'ap-southeast-1:0d9fce2a-a615-4614-b676-b9cee609cd66'
+      
+    });
+	const userPool = new AmazonCognitoIdentity.CognitoUserPool({
+      UserPoolId: 'ap-southeast-1_dLLPs7cCl' ,
+      ClientId: '5q16h36k51s8ukp1pgg6aq2l9b'
+    });
+
+    let userName = "";
+    let selectedBot = "";
+    let lexUserId = 'chatbot-demo-' + Date.now();
+    let sessionAttributes = {};
+    const lex_config = {
+      bot_mappings: {
+        github: { botId: 'ZFCQ7NQ4FW', botAliasId: 'TSTALIASID', localeId: 'en_US' },
+        jenkins: { botId: 'F3Q0lFGDYP', botAliasId: 'TSTALIASID', localeId: 'en_US' },
+        service_now: { botId: 'SUw2UkJRQUxQQw', botAliasId: 'TSTALIASID', localeId: 'en_US' }
+      },
+      region: 'ap-southeast-1'
+    };
+
+    function setName() {
+      const usernameInput = document.getElementById("username-input");
+      const passwordInput = document.getElementById("user-name-input");
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+      const errorDiv = document.getElementById("login-error");
+      const spinner = document.getElementById("loading-spinner");
+
+      errorDiv.style.display = "none";
+      usernameInput.classList.remove("shake");
+      passwordInput.classList.remove("shake");
+
+      if (!username) {
+        usernameInput.classList.add("shake");
+        errorDiv.textContent = "Username is required.";
+        errorDiv.style.display = "block";
+        return;
+      }
+
+      if (!password) {
+        passwordInput.classList.add("shake");
+        errorDiv.textContent = "Password is required.";
+        errorDiv.style.display = "block";
+        return;
+      }
+
+      spinner.style.display = "block";
+
+      const authDetails = new AmazonCognitoIdentity.AuthenticationDetails({ Username: username, Password: password });
+      const userData = { Username: username, Pool: userPool };
+      const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+      cognitoUser.authenticateUser(authDetails, {
+       /*onSuccess: function () {
+          userName = username;
+          spinner.style.display = "none";
+          document.getElementById("name-entry").style.display = "none";
+          document.getElementById("chat-interface").style.display = "flex";
+          setTimeout(() => {
+            displayMessage("Bot", "", getFormattedTimestamp(), false, {
+              title: "Hello " + userName + ", I am your personal DevOps bot!",
+              subtitle: "Please select one of the below options.",
+              buttons: [
+                { text: "Jenkins", value: "jenkins" },
+                { text: "Github", value: "github" },
+                { text: "Service Now", value: "service_now" },
+                { text: "Others", value: "others" }
+              ]
+            });
+          }, 1000);
+		  console.log("AWS.config.credentials", AWS.config.credentials);
+		  console.log("Cognito Identity ID:", AWS.config.credentials.identityId);
+		  
+        } */
+		onSuccess: function (result) {
+		  userName = username;
+		  const idToken = result.getIdToken().getJwtToken();
+
+		  // Set logins map to link the identity pool with user pool login
+		  AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+			IdentityPoolId: 'ap-southeast-1:0d9fce2a-a615-4614-b676-b9cee609cd66',
+			Logins: {
+			  'cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_dLLPs7cCl': idToken
+			}
+		  });
+
+  // Refresh credentials to get identityId
+		  AWS.config.credentials.refresh(error => {
+			if (error) {
+			  console.error("Error refreshing credentials: ", error);
+			} else {
+			  console.log("Cognito Identity ID:", AWS.config.credentials.identityId);
+
+			  spinner.style.display = "none";
+			  document.getElementById("name-entry").style.display = "none";
+			  document.getElementById("chat-interface").style.display = "flex";
+
+			  setTimeout(() => {
+				displayMessage("Bot", "", getFormattedTimestamp(), false, {
+				  title: "Hello " + userName + ", I am your personal DevOps bot!",
+				  subtitle: "Please select one of the below options.",
+				  buttons: [
+					{ text: "Jenkins", value: "jenkins" },
+					{ text: "Github", value: "github" },
+					{ text: "Service Now", value: "service_now" },
+					{ text: "Others", value: "others" }
+				  ]
+				});
+			  }, 1000);
+			}
+		  });
+		},
+        onFailure: function (err) {
+          spinner.style.display = "none";
+          errorDiv.textContent = err.message || "Login failed.";
+          errorDiv.style.display = "block";
+        }
+      });
+    }
+
+    function sendMessage(message) {
+      const input = document.getElementById("message-input");
+      if (!message) {
+        message = input.value.trim();
+        if (!message) return;
+      }
+      const time = getFormattedTimestamp();
+      displayMessage("User", message, time);
+      input.value = "";
+
+      if (["jenkins", "github", "service_now"].includes(message)) {
+        selectedBot = message;
+      }
+
+      try {
+        const botData = lex_config.bot_mappings[selectedBot];
+        const lexruntime = new AWS.LexRuntimeV2({ region: lex_config.region });
+
+        lexruntime.recognizeText({
+          botId: botData.botId,
+          botAliasId: botData.botAliasId,
+          localeId: botData.localeId,
+          sessionId: lexUserId,
+          text: message,
+          sessionState: { sessionAttributes: sessionAttributes }
+        }, function (err, data) {
+          if (err) {
+            console.error(err);
+            displayMessage("Bot",err, time, true);
+            return;
+          }
+
+          sessionAttributes = data.sessionState.sessionAttributes || {};
+          const msg = data.messages && data.messages[0];
+
+          if (msg.contentType === "ImageResponseCard") {
+            displayMessage("Bot", msg.content, time, false, msg.imageResponseCard);
+          } else {
+            displayMessage("Bot", msg.content, time);
+          }
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+function getFormattedTimestamp() {
+  var now = new Date();
+  var options = {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  };
+  return now.toLocaleString('en-US', options);
+}
+
+
+    function displayMessage(sender, message, timestamp, isError = false, imageResponseCard = null) {
+      const chatBody = document.getElementById("chat-body");
+      const container = document.createElement("div");
+      container.classList.add("message-container");
+
+      const name = document.createElement("div");
+      name.textContent = sender === "Bot" ? `DevOpsBot ${timestamp}` : `${userName} ${timestamp}`;
+      name.classList.add("message", sender === "Bot" ? "bot-name" : "user-name");
+      container.appendChild(name);
+
+      const bubble = document.createElement("div");
+      bubble.classList.add("message", sender === "Bot" ? "bot-message" : "user-message");
+
+      if (imageResponseCard) {
+        const card = document.createElement("div");
+        card.id = "imageResponseCard";
+        card.innerHTML = `<h2>${imageResponseCard.title}</h2><p>${imageResponseCard.subtitle}</p>`;
+        imageResponseCard.buttons.forEach(btn => {
+          const button = document.createElement("button");
+          button.textContent = btn.text;
+          button.value = btn.value;
+          button.className = "btn-primary";
+          button.onclick = () => sendMessage(btn.value);
+          card.appendChild(button);
+        });
+        bubble.appendChild(card);
+      } else {
+        bubble.textContent = message;
+      }
+
+      if (isError) bubble.style.color = "red";
+
+      container.appendChild(bubble);
+      chatBody.appendChild(container);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+  </script>
+</body>
+</html>

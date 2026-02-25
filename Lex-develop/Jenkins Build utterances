@@ -1,0 +1,62 @@
+1. Jenkins Job Triggering:
+“Start the build for job {JobName}”
+“Trigger the {JobName} build”
+“Can you trigger the Jenkins job named {JobName}?”
+“Run the Jenkins build for {JobName}”
+“Initiate a build for {JobName}”
+“Build job {JobName} now”
+“Execute {JobName} job”
+“Please trigger the build for {JobName}”
+“Start Jenkins job {JobName}”
+2. Job Status and Information:
+“What is the status of the {JobName} job?”
+“Has the {JobName} build finished?”
+“Is the {JobName} build complete?”
+“Tell me the status of job {JobName}.”
+“How is the {JobName} job doing?”
+“Show me the {JobName} build result”
+“Give me the status of the {JobName} build”
+“Was the {JobName} job successful?”
+3. Job Configuration & Details:
+“What is the configuration for the {JobName} job?”
+“Show details for Jenkins job {JobName}”
+“Give me the build configuration for job {JobName}”
+“Tell me about the {JobName} Jenkins job”
+4. Error Handling & Help Requests:
+“I can’t find job {JobName}, is it correct?”
+“The build for {JobName} failed, what went wrong?”
+“Why did the {JobName} build fail?”
+“Tell me why the {JobName} job didn’t run.”
+“Can you help me with {JobName} build failure?”
+“Job {JobName} doesn’t exist, please check the name.”
+5. Post-Build Actions:
+“Deploy the build for {JobName}”
+“Can you deploy {JobName} after it finishes building?”
+“What should I do after the {JobName} build completes?”
+“Trigger deployment once {JobName} is done building”
+“Is the {JobName} ready for deployment?”
+6. Job Restart & Rerun:
+“Can you restart the {JobName} job?”
+“Re-run the build for {JobName}”
+“Trigger a new build for job {JobName}”
+“Start the {JobName} job again”
+“Rebuild the {JobName} job”
+7. Scheduling or Delayed Builds:
+“Schedule a build for {JobName} tomorrow”
+“Can you set a build for {JobName} next week?”
+“Schedule a Jenkins build for {JobName} at 5 PM”
+“Run job {JobName} at midnight”
+“When will the build for {JobName} be triggered?”
+8. Multiple Job Handling:
+“Run both {JobName1} and {JobName2} jobs”
+“Trigger {JobName1} first, then run {JobName2} job”
+“Can you execute both jobs {JobName1} and {JobName2} together?”
+9. Job Queues:
+“Is {JobName} in the queue?”
+“How many jobs are queued for Jenkins?”
+“When will the build for {JobName} start?”
+“Is {JobName} waiting to be triggered?”
+10. Job Parameters (if applicable):
+“Build {JobName} with the parameter {parameter_value}”
+“Trigger {JobName} with custom parameters”
+“Can I pass the value {parameter_value} to the {JobName} job?”
