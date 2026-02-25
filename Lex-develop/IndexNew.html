@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -77,7 +77,7 @@
       display: block;
       margin-top: 5px;
     }
-    #username-input, #user-name-input {
+    #username-input, #password-input {
       width: 80%;
       padding: 10px;
       margin-top: 10px;
@@ -166,7 +166,7 @@
 
     <div id="name-entry">
       <input type="text" id="username-input" placeholder="Enter username..." />
-      <input type="password" id="user-name-input" placeholder="Enter password..." />
+      <input type="password" id="password-input" placeholder="Enter password..." />
       <button id="name-button" onclick="setName()">Login</button>
       <div id="login-error"></div>
      <div id="loading-spinner"><img src="https://i.imgur.com/llF5iyg.gif" alt="Loading..."></div>
@@ -209,7 +209,7 @@
 
     function setName() {
       const usernameInput = document.getElementById("username-input");
-      const passwordInput = document.getElementById("user-name-input");
+      const passwordInput = document.getElementById("password-input");
       const username = usernameInput.value.trim();
       const password = passwordInput.value.trim();
       const errorDiv = document.getElementById("login-error");
